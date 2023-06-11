@@ -1,13 +1,10 @@
 <?php
 
 use Aws\S3\S3Client;
+
 require 'S3FileUploader.php';
 require 'S3ClientConfig.php';
 
-use src\AppFileUploader;
-use src\LocalFileUploader;
-use src\S3ClientConfig;
-use src\S3FileUploader;
 
 
 

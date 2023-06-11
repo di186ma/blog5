@@ -1,59 +1,89 @@
 <?php
+
 namespace Framework;
-use src\Controllers\MyController;
-use function PHPSTORM_META\elementType;
+
+//use App\Controllers;
+//use function PHPSTORM_META\elementType;
 
 use Framework\Exceptions\MethodNotFoundException;
 use Framework\Exceptions\RouteNotFoundException;
+use Framework\Exceptions\UnauthorizedException;
+
+require 'src\Routes.php';
 
 class Router
 {
     public static $routes = []; //use to be private
     private $request;
+    public Auth $auth;
 
-    public function __construct(Request $request)
+    public function __construct(Request $request, Auth $auth)
     {
         $this->request = $request;
+        $this->auth = $auth;
     }
 
-    public function getContent(){
-        $exec_route = null;
-        foreach (self::$routes as $route){
-            echo "Путь: ".$route->getPath()."<br>";
-            if($route->getType() == $this->request->getType() && preg_match($route->getMask(), $this->request->getPath()))
-            {
-                $exec_route = $route;
-            }
+    private function getCurrentRoute(): ?Route
+    {
+        echo ' 6786 ';
+        //var_dump(self::$routes);
+        $routes = array_filter(self::$routes,
+            fn($route) => $route->getType() == $this->request->getType() && preg_match($route->getMask(), $this->request->getPath()));
+        echo ' 45674743 ';
+        var_dump($routes);
+        if (!$routes) {
+            return null;
         }
-        if($exec_route){
-            $action = explode('@',$exec_route->getAction());
-            if (isset($action[0]) && isset($action[1])){
-
-                $controller_name = "App\Controllers\\".$action[0];
-                echo "Имя контроллера: ".$controller_name."<br>";
-                $method_name = $action[1];
-                echo "Вызываемый метод: ".$method_name."<br>";
-                $controller = new $controller_name();
-                if(method_exists($controller, $method_name))
-                {
-                    $params = [];
-                    preg_match_all($exec_route->getMask(), $this->request->getPath(),$params);
-                    echo "params= ";
-                    var_dump($params);
-                    echo "<br>----------------<br>";
-                    $params_to_controller = array_map(fn($p)=>$p[0],array_slice($params,1   ));
-                    echo "params_to_controller= ";
-                    var_dump($params_to_controller);
-                    echo "<br>----------------<br>";
-                    return $controller->$method_name(...array_values($params_to_controller));
-                }
-                return "Метод ".$method_name." не найден";
-            }
-            else return "Контроллер не найден";
-        }
-        return "Маршрут не найден";
+        usort($routes, fn($route_first, $route_second) => count($this->getParamsForController($route_second)) - count($this->getParamsForController($route_first)));
+        return $routes[0];
     }
-    public static function addRoute($route){
+
+    /**
+     * @throws UnauthorizedException
+     */
+    private function checkAuth(Route $route)
+    {
+        $this->request = $this->auth->enrichByUser($this->request);
+        if ($route->isRequireAuth() && !$this->request->getUser()) {
+            throw new UnauthorizedException();
+        }
+    }
+
+    private function getParamsForController(Route $route)
+    {
+        $params = [];
+        preg_match_all($route->getMask(), $this->request->getPath(), $params);
+        echo("<p>Params: ");
+        var_dump($params);
+        echo("<p>Params for controller: ");
+        var_dump(array_map(fn($p) => $p[0], array_slice($params, 1)));
+        return array_map(fn($p) => $p[0], array_slice($params, 1));
+    }
+
+    /**
+     * @throws MethodNotFoundException
+     * @throws UnauthorizedException
+     * @throws RouteNotFoundException
+     */
+    public function getContent()
+    {
+        $exec_route = $this->getCurrentRoute();
+        if (!$exec_route) {
+            throw new RouteNotFoundException();
+        };
+        $this->checkAuth($exec_route);
+        $controller_name = $exec_route->getControllerClass();
+        $method_name = $exec_route->getControllerMethodName();
+        $controller = new $controller_name();
+        if (!method_exists($controller, $method_name)) {
+            throw new MethodNotFoundException($method_name, $controller_name);
+        }
+        $params_to_controller = $this->getParamsForController($exec_route);
+        return call_user_func_array([$controller, $method_name], array_merge(['request' => $this->request], $params_to_controller));
+    }
+
+    public static function addRoute($route)
+    {
         array_push(self::$routes, $route);
     }
 }

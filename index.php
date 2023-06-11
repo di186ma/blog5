@@ -2,9 +2,7 @@
 
 use Dotenv\Dotenv;
 use Framework\Container;
-use Framework\Request;
-use Framework\Router;
-use Framework\Application;
+
 
 session_start(["use_strict_mode" => true]);
 
@@ -12,16 +10,24 @@ date_default_timezone_set('Asia/Yekaterinburg');
 if ( file_exists(dirname(__FILE__).'/vendor/autoload.php') ) {
     require_once dirname(__FILE__).'/vendor/autoload.php';
 }
+if (file_exists(".env"))
+{
+    $dotenv = Dotenv::createImmutable(__DIR__);
+    $dotenv->load(); //все параметры окружения помещаются в массив $_ENV
+    echo "Окружение загружено<p>";
+    // var_dump($_ENV);
+}
+else {
+    echo "Ошибка загрузки ENV<br>";
+}
+Container::getApp()->run();
 
 
-$request = new Request();
-Application::init();
-echo (new Router($request))->getContent();
-die();
+exit();
 
 
 
-require_once 'dbconnect.php';
+require 'dbconnect.php';
 
 // Проверка, авторизован ли пользователь
 if (!isset($_SESSION['user_id'])) {
@@ -64,10 +70,10 @@ include 'header.php';
 
                     // Проверка, может ли текущий пользователь удалить этот пост
 
-                        echo '<form method="POST" action="delete_post.php">';
-                        echo '<input type="hidden" name="post_id" value="' . $post['id'] . '">';
-                        echo '<button type="submit" class="btn-delete">Удалить</button>';
-                        echo '</form>';
+                    echo '<form method="POST" action="delete_post.php">';
+                    echo '<input type="hidden" name="post_id" value="' . $post['id'] . '">';
+                    echo '<button type="submit" class="btn-delete">Удалить</button>';
+                    echo '</form>';
 
 
                     // Вывод комментариев
