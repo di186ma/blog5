@@ -8,8 +8,16 @@
     <title>Document</title>
 </head>
 <body>
-<h1>Имя <?=$data['name']?></h1>
-<h1>Возраст <?=$data['value']?></h1>
+<h1>Сведения о пользователе:</h1>
+<ul>
+    <?php foreach ($data['users'] as $user): ?>
+        <li>
+            <?=$user->id?>
+            <?=$user->email?>
+            <?=$user->PASSWORD?>
+        </li>
+    <?php endforeach; ?>
+
+</ul>
 </body>
 </html>
-

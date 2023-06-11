@@ -9,6 +9,6 @@
 </head>
 <body>
 <h2>Добрый день <?=$data['name']?></h2>
-<h2>Вы сказали <?=$data['value']?></h2>
+<h2>Ваш возраст <?=$data['value']?></h2>
 </body>
 </html>

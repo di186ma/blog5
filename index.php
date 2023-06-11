@@ -6,6 +6,7 @@ use Framework\Request;
 use Framework\Router;
 use Framework\Application;
 
+session_start(["use_strict_mode" => true]);
 
 date_default_timezone_set('Asia/Yekaterinburg');
 if ( file_exists(dirname(__FILE__).'/vendor/autoload.php') ) {
@@ -13,7 +14,9 @@ if ( file_exists(dirname(__FILE__).'/vendor/autoload.php') ) {
 }
 
 
+$request = new Request();
 Application::init();
+echo (new Router($request))->getContent();
 die();
 
 

@@ -4,7 +4,7 @@ namespace App\Models;
 use Framework\Model;
 use Framework\MysqlModel;
 
-class UserModel extends MysqlModel
+class PasswordModel extends MysqlModel
 {
     protected $table="users";
 //    public function index()
