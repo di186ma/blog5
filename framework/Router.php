@@ -25,11 +25,11 @@ class Router
 
     private function getCurrentRoute(): ?Route
     {
-        echo ' 6786 ';
+
         //var_dump(self::$routes);
         $routes = array_filter(self::$routes,
             fn($route) => $route->getType() == $this->request->getType() && preg_match($route->getMask(), $this->request->getPath()));
-        echo ' 45674743 ';
+
         var_dump($routes);
         if (!$routes) {
             return null;

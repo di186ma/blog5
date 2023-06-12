@@ -9,7 +9,7 @@
             "Framework\\": "framework"
         },
         "files": [
-            "app/routes.php"
+            "src/Routes.php"
         ]
     }
 }

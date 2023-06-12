@@ -5,7 +5,6 @@ use Framework\Router;
 use Dotenv\Dotenv;
 use Framework\Exceptions\UnauthorizedException;
 
-
 class Application
 {
     private Router $router;
@@ -15,13 +14,10 @@ class Application
         $this->router = $router;
     }
 
-
     public function run()
     {
         try {
-            echo 0;
             echo $this->router->getContent();
-
         } catch (UnauthorizedException $e) {
             http_response_code(401);
             echo $e->getMessage();

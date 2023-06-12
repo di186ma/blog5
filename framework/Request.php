@@ -14,7 +14,6 @@ class Request
 
     public function __construct()
     {
-        echo 9;
         $this->path = $_SERVER['REQUEST_URI'];
         $this->get_params = $_GET;
         unset($this->get_params['path']);

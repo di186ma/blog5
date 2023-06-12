@@ -11,13 +11,12 @@ class Container
 
     public static function getApp(): Application
     {
-        echo 8;
         return new Application(self::getRouter());
     }
 
     public static function getAuth(): Auth
     {
-        echo ('создан объект Auth');
+        echo ('создан объект Auth  ');
         return new Auth(self::getRequest());
     }
 
